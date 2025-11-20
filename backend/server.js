@@ -8,6 +8,7 @@ import connectCloudinary from './config/cloudinary.js';
 import adminRouter from './routes/adminRoute.js';
 import doctorRouter from './routes/doctorRoute.js';
 import userRouter from './routes/userRoute.js';
+import contactRoute from './routes/contactRoute.js'
 import symptomCheckerRoute from "./routes/symptomCheckerRoute.js";
 import userModel from './models/userModel.js';
 import appointmentModel from './models/appointmentModel.js';
@@ -29,6 +30,7 @@ app.use('/api/admin', adminRouter); // localhost:4000/api/admin/add-doctor
 app.use('/api/doctor', doctorRouter);
 app.use("/api", symptomCheckerRoute);
 app.use('/api/user', userRouter);
+app.use('/api/contact',contactRoute)
 
 app.get('/', (req, res) => {
   res.send("Api Working");
