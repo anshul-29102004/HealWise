@@ -114,34 +114,38 @@ const appointmentCancel=async (req,res) => {
 //API TO GET DASHBOARD DATA FOR DOCTOR PANEL
 const doctorDashboard=async (req,res) => {
    try {
-   const docId = req.docId;
-   const appointments=await appointmentModel.find({docId})
-      let earning=0
+      const docId = req.docId;
+      const appointments = await appointmentModel.find({ docId });
+      let earning = 0;
+      const now = new Date();
 
-      appointments.map((item)=>{
-       if(item.isCompleted || item.payment)
-       {
-         earning+=item.amount
-       }
-      })
-      let patients=[]
-      appointments.map((item)=>{
-      if(!patients.includes(item.userId)){
-         patients.push(item.userId)
-      }
+      appointments.forEach((item) => {
+         // Revised rule: Earnings include
+         // 1) Completed appointments
+         // 2) Paid appointments that are NOT cancelled
+         if (item.isCompleted || (item.payment && !item.cancelled)) {
+            earning += item.amount;
+         }
+      });
 
-      })
+      // Unique patient count
+      let patients = [];
+      appointments.forEach((item) => {
+         if (!patients.includes(item.userId)) {
+            patients.push(item.userId);
+         }
+      });
 
-      const dashData={
+      const dashData = {
          earning,
-         appointments:appointments.length,
-         patients:patients.length,
-         latestAppointments:appointments.reverse().slice(0,5)
-      }
-      res.json({success:true,dashData})
+         appointments: appointments.length,
+         patients: patients.length,
+         latestAppointments: appointments.reverse().slice(0, 5)
+      };
+      res.json({ success: true, dashData });
    } catch (error) {
-      console.log(error)
-      res.json({success:false,message:error.message}) 
+      console.log(error);
+      res.json({ success: false, message: error.message });
    }
 }
 

@@ -1,8 +1,8 @@
-import React, { useContext } from 'react'
+import React, { useContext, useRef, useState } from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import logo from '../assets/HealWise.png'
 import '../index.css'
-import { useState } from 'react'
+// (useState imported above with React)
 import drop from '../assets/drop.svg'
 import menu_icon from "../assets/menu_icon.svg"
 import cross_icon from "../assets/cross_icon.png"
@@ -10,7 +10,9 @@ import { AppContext } from '../context/AppContext'
 const Navbar = () => {
  
    const navigate = useNavigate();
-   const [showMenu,setShowMenu]=useState(false);
+  const [showMenu,setShowMenu]=useState(false);
+  const [userDropdownOpen,setUserDropdownOpen]=useState(false);
+  const dropdownTimer = useRef(null);
    const ADMIN_PANEL_URL=import.meta.env.VITE_ADMIN_URL || '/admin';
   const { token, setToken,userData } = useContext(AppContext);
   
@@ -43,40 +45,50 @@ const Navbar = () => {
       <div className='flex items-center gap-4'>
         {
             token && userData
-            ? <div className='flex items-center gap-2 cursor-pointer  group relative'>
-            <img className='w-8 rounded-full' src={userData.image} alt=""/>
-            <img className='w-2.5' src={drop} alt=""/>
+            ? <div
+                className='flex items-center gap-2 cursor-pointer relative'
+                onMouseEnter={() => {
+                  if (dropdownTimer.current) clearTimeout(dropdownTimer.current)
+                  setUserDropdownOpen(true)
+                }}
+                onMouseLeave={() => {
+                  // small delay to prevent flicker when moving between avatar and menu
+                  dropdownTimer.current = setTimeout(() => setUserDropdownOpen(false), 120)
+                }}
+              >
+              <img className='w-8 rounded-full' src={userData.image} alt=""/>
+              <img className={`w-2.5 transition-transform duration-200 ${userDropdownOpen ? 'rotate-180' : ''}`} src={drop} alt=""/>
 
-            <div className="absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 z-50 opacity-0 scale-95 transition-all duration-150 ease-out pointer-events-none
-    group-hover:opacity-100 group-hover:scale-100 group-hover:pointer-events-auto"
->
-  <div className="py-1 text-sm">
-    <p
-      onClick={() => navigate('/my-profile')}
-      className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
-    >
-      My Profile
-    </p>
-    <p
-      onClick={() => navigate('/my-appointments')}
-      className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
-    >
-      My Appointments
-    </p>
-    <p
-      onClick={() => navigate('/my-applications')}
-      className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
-    >
-      My Applications
-    </p>
-    <p
-      onClick={logout}
-      className="block px-4 py-2 text-red-600 hover:bg-red-50 cursor-pointer"
-    >
-      Logout
-    </p>
-  </div>
-</div>
+              <div
+                className={`absolute right-0 top-full mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black/5 z-50 transition-all duration-200 ease-out ${userDropdownOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
+              >
+                <div className="py-1 text-sm">
+                  <p
+                    onClick={() => navigate('/my-profile')}
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
+                  >
+                    My Profile
+                  </p>
+                  <p
+                    onClick={() => navigate('/my-appointments')}
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
+                  >
+                    My Appointments
+                  </p>
+                  <p
+                    onClick={() => navigate('/my-applications')}
+                    className="block px-4 py-2 text-gray-700 hover:bg-gray-50 hover:text-gray-900 cursor-pointer"
+                  >
+                    My Applications
+                  </p>
+                  <p
+                    onClick={logout}
+                    className="block px-4 py-2 text-red-600 hover:bg-red-50 cursor-pointer"
+                  >
+                    Logout
+                  </p>
+                </div>
+              </div>
             </div>
         
         :<button onClick={()=>navigate('/login')} className='bg-[#5f6FFF] text-white px-8 py-3 rounded-full font-light hidden md:block'>Create Account</button>

@@ -37,7 +37,9 @@ const DoctorContextProvider=(props)=>{
            if(data.success)
            {
             toast.success(data.message)
+            // Refresh both appointments list and dashboard data (earning changes if completion)
             getAppointments()
+            getDashData()
            }
            else
            {
@@ -54,7 +56,9 @@ const DoctorContextProvider=(props)=>{
            if(data.success)
            {
             toast.success(data.message)
+            // Refresh appointments and dashboard (earning may reduce if refunded)
             getAppointments()
+            getDashData()
            }
            else
            {

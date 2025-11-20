@@ -10,7 +10,7 @@ import { AppContext } from '../../context/AppContext';
 import { AdminContext } from '../../context/AdminContext';
 const DoctorDashboard = () => {
   
-  const {dashData,setDashData,getDashData,dToken,completeAppointment,cancelAppointment}=useContext(DoctorContext)
+  const {dashData,getDashData,dToken,completeAppointment,cancelAppointment}=useContext(DoctorContext)
   const {currency,slotDateFormat}=useContext(AppContext)
 
 
@@ -19,7 +19,7 @@ const DoctorDashboard = () => {
    {
     getDashData()
    }
-  },[dToken])
+  },[dToken,getDashData])
 
 
   return dashData &&  (
@@ -70,15 +70,27 @@ const DoctorDashboard = () => {
                       <p className="text-gray-600">Booking on {slotDateFormat(item.slotDate)}</p>
                     </div>
                     {
-                                  item.cancelled
-                                  ? <p className='text-red-400 text-xs font-medium'>Cancelled</p>
-                                  : item.isCompleted 
-                                  ? <p className='text-green-500 text-xs font-medium'>Completed</p>
-                                  : <div className='flex '>
-                                  <img onClick={() => cancelAppointment(item?._id)} className='w-10 cursor-pointer' src={cancel_icon} alt="" />
-                                  <img onClick={() => completeAppointment(item?._id)} className='w-10 cursor-pointer' src={tick_icon} alt="" />
-                                </div>
-                                }
+                      (() => {
+                        const apptDT = item.appointmentDateTime ? new Date(item.appointmentDateTime) : new Date(`${item.slotDate}T${item.slotTime}:00`);
+                        const now = new Date();
+                        const refunded = item.cancelled && item.payment && apptDT > now;
+                        if (refunded) {
+                          return <p className='text-orange-500 text-xs font-medium'>Refunded</p>;
+                        }
+                        if (item.cancelled) {
+                          return <p className='text-red-400 text-xs font-medium'>Cancelled</p>;
+                        }
+                        if (item.isCompleted) {
+                          return <p className='text-green-500 text-xs font-medium'>Completed</p>;
+                        }
+                        return (
+                          <div className='flex '>
+                            <img onClick={() => cancelAppointment(item?._id)} className='w-10 cursor-pointer' src={cancel_icon} alt="" />
+                            <img onClick={() => completeAppointment(item?._id)} className='w-10 cursor-pointer' src={tick_icon} alt="" />
+                          </div>
+                        );
+                      })()
+                    }
                   </div>
                 ))}
               </div>
